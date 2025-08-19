@@ -109,7 +109,7 @@ std::function<double(double, double)> opB) {
 
 
 void AddBackward::backward(std::shared_ptr<std::vector<double>> grad_output, std::vector<size_t> shape, std::vector<size_t> stride) { // grad_output is the gradient inputted into the function
-    std::cout << "ADD HAS BEEN CALLED" << std::endl;
+    // std::cout << "ADD HAS BEEN CALLED" << std::endl;
     Tensor grad_tensor = Tensor(*grad_output, shape, stride);
 
     calc_gradient_basic(
@@ -129,7 +129,7 @@ void AddBackward::save_for_backward(std::vector<std::reference_wrapper<Tensor>> 
 
 
 void SubBackward::backward(std::shared_ptr<std::vector<double>> grad_output, std::vector<size_t> shape, std::vector<size_t> stride) { // grad_output is the gradient inputted into the function
-    std::cout << "SUB BEEN CALLED" << std::endl;
+    // std::cout << "SUB BEEN CALLED" << std::endl;
 
     Tensor grad_tensor = Tensor(*grad_output, shape, stride);
 
@@ -149,7 +149,7 @@ void SubBackward::save_for_backward(std::vector<std::reference_wrapper<Tensor>> 
 };
 
 void MulBackward::backward(std::shared_ptr<std::vector<double>> grad_output, std::vector<size_t> shape, std::vector<size_t> stride) { // grad_output is the gradient inputted into the function
-    std::cout << "MUL HAS BEEN CALLED" << std::endl;
+    // std::cout << "MUL HAS BEEN CALLED" << std::endl;
 
     Tensor grad_tensor = Tensor(*grad_output, shape, stride);
 
@@ -170,7 +170,7 @@ void MulBackward::save_for_backward(std::vector<std::reference_wrapper<Tensor>> 
 };
 
 void DivBackward::backward(std::shared_ptr<std::vector<double>> grad_output, std::vector<size_t> shape, std::vector<size_t> stride) {
-    std::cout << "DIV HAS BEEN CALLED" << std::endl;
+    // std::cout << "DIV HAS BEEN CALLED" << std::endl;
     Tensor grad_tensor = Tensor(*grad_output, shape, stride);
 
     calc_gradient_basic(

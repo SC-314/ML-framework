@@ -1,123 +1,50 @@
 #include "Main/Main.h"
-#include <sys/types.h>
-#include <vector>
+#include "LossFunction/LossFunction.h"
+#include <sys/types.h> // infuture have tensor just be a class just to hold the singel poinpter to the
+#include <vector>// tensorimpl that store all the data (store nothing on stack
 
 
 int main() {
 
     struct Net : Module {
-
         Linear fc1{};
-
-        Net() : fc1(2, 10) {
+        Linear fc2{};
+        Linear fc3{};
+        Tensor IM1;
+        Tensor IM2;
+        Net() : fc1(2, 5), fc2(5,20), fc3(20, 1) {
             register_module("fc1", fc1);
+            register_module("fc2", fc2);
+            register_module("fc3", fc3);
         }
-        
         Tensor forward(Tensor& x) {
-            return fc1(x);
+            Tensor C = fc1(x);
+            this->IM1 = C;
+            this->IM1.data = C.data; // it didmt fix the data notbinmg in iter
+            this->IM1.grad_fn = C.grad_fn;
+            this->IM1.grad = C.grad;
+
+            Tensor D = fc2(IM1);
+            this->IM2 = D;
+            this->IM2.data = D.data;
+            this->IM2.grad_fn = D.grad_fn;
+            this->IM2.grad = D.grad;
+
+            return fc3(IM2);
         }
     };
-
     Net network;
-
-    // Tensor A = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10}), std::vector<size_t>({1,5,2}), std::vector<size_t>({2,1}));
-    // Tensor W = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}), std::vector<size_t>({1,2,10}), std::vector<size_t>({20,10,1}));
-
-    Tensor A = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10}), std::vector<size_t>({5,2}), std::vector<size_t>({2,1}));
-    Tensor W = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}), std::vector<size_t>({2,10}), std::vector<size_t>({10,1}));
-    Tensor B = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10}), std::vector<size_t>({1, 10}), std::vector<size_t>({10, 1}));
-
-    // Tensor C = (A & W);
-    
-    // Tensor D = C + B;
-    
-    // D.backward(true);
-
-    // std::cout << D << std::endl << "HERE IS THE GE" << std::endl;
-    // for (auto a : (*B.grad)) {
-    //     std::cout << a;
-    // };
-
-   Tensor Y = network.forward(A);
-
-    Y.backward(true);
-
-    std::cout << Y << std::endl << std::endl;
-
-    for (auto a : (*network.fc1.weights.grad)) {
-        std::cout << a << ", ";
-    } std::cout << std::endl << "isodfjpo" << std::endl;
-    for (auto a : (*A.grad)) {
-        std::cout << a << ", ";
-    } std::cout << std::endl << "isodfjpo" << std::endl;
+    Optim::SGD optimizer(0.000001, network.parameters());
+    Tensor A = Tensor(std::vector<double>({1,2,3,4,5,6,7,3,3,3}), std::vector<size_t>({5,2}), std::vector<size_t>({2,1}));
+    Tensor y = Tensor(std::vector<double>({1,1,1,1,1}), std::vector<size_t>({5,1}), std::vector<size_t>({1,1}));
 
 
-    // for (auto a : (*network.fc1.bias.grad)) {
-    //     std::cout << a << ", ";
-    // } std::cout << std::endl << std::endl;
+    for (int i = 0; i < 10000; i++) {
+        Tensor B = network.forward(A);
+        auto loss = MseLoss(B, y);
+        loss.backward();
+        optimizer.apply_grads();
+        std::cout << B << std::endl;
+        optimizer.zero_grads();
+    }
 }
-
-// int main() {
-
-//     struct Net : Module {
-
-//         Linear fc1{}, fc2{};
-
-//         Net() : fc1(2, 10), fc2(10, 1) {
-//             register_module("fc1", fc1);
-//         }
-
-//         Tensor forward(Tensor& x) {
-//             return fc1(x);
-//         }
-//     };
-
-//     Net network;
-
-//     Tensor A = Tensor(std::vector<double>({1,2,3,4,5,6,7,8,9,10}), std::vector<size_t>({5,2}), std::vector<size_t>({2,1}));
-
-//     Tensor Y = network.forward(A);
-// }
-
-
-// int main() {
-//     Tensor A = Tensor(  std::vector<double>({1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24}),
-//                         std::vector<size_t>({2,3,4}),
-//                         std::vector<size_t>({12,4,1}));
-            
-//     Tensor B = Tensor(  std::vector<double>({1,2,3,4,5,6,7,8}),
-//                         std::vector<size_t>({1,4,2}),
-//                         std::vector<size_t>({8,2,1}));
-
-//     Tensor D = Tensor(  std::vector<double>({1,2,3,4,5,6}),
-//                     std::vector<size_t>({1,2,3}),
-//                     std::vector<size_t>({6,3,1}));
-
-//     Tensor C = A & B; // (2,3,4) * (1,4,2) = (2,3,2)
-//     Tensor E = C & D; // (2,3,2) * (1,2,3) = (2,3,3)
-
-//     E.backward(true); // NOTE: this was just a quick fix to the graidnet keep on being set to 1 OOPSISE
-
-//     std::cout << std::endl;
-//     for (auto a : C.shape) {
-//         std::cout << a << ", ";
-//     }
-//     std::cout << std::endl << std::endl;
-
-
-//     for (auto a : (*A.grad)) {
-//         std::cout << a << ",";
-//     } std::cout << std::endl;
-//     for (auto a : (*B.grad)) {
-//         std::cout << a << ",";
-//     } std::cout << std::endl;
-//     for (auto a : (*C.grad)) {
-//         std::cout << a << ",";
-//     } std::cout << std::endl;
-//     for (auto a : (*D.grad)) {
-//         std::cout << a << ",";
-//     } std::cout << std::endl;
-//     for (auto a : (*E.grad)) {
-//         std::cout << a << ",";
-//     } std::cout << std::endl;
-// }

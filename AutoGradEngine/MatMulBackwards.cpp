@@ -140,13 +140,13 @@ std::function<double(double, double)> opB) {
     Tensor gradTensorA = BasicMatMulOperation(gradTensor, Bchad, [](double a, double b) -> double { return a * b; });
     Tensor gradTensorB = BasicMatMulOperation(Achad, gradTensor, [](double a, double b) -> double { return a * b; });
 
-    std::cout << "HERIE IS THE SHAPE: " << std::endl;
-    for (auto a : gradTensorA.shape) {
-        std::cout << a << ", ";
-    }
-    for (auto a : gradTensorB.shape) {
-        std::cout << a << ", ";
-    }
+    // std::cout << "HERIE IS THE SHAPE: " << std::endl;
+    // for (auto a : gradTensorA.shape) {
+    //     std::cout << a << ", ";
+    // }
+    // for (auto a : gradTensorB.shape) {
+    //     std::cout << a << ", ";
+    // }
 
     std::vector<double> gradA = sum_to_shape(*gradTensorA.data, A.shape, gradTensorA.shape, gradTensorA.strides);
     std::vector<double> gradB = sum_to_shape(*gradTensorB.data, B.shape, gradTensorB.shape, gradTensorB.strides);
@@ -155,12 +155,12 @@ std::function<double(double, double)> opB) {
         (*A.grad)[i] = (*A.grad)[i] + gradA[i];
     }
 
-    for (auto a : (*A.grad)) {
-        std::cout << a << ", ";
-    }
-    for (auto a : (*B.grad)) {
-        std::cout << a << ", ";
-    }
+    // for (auto a : (*A.grad)) {
+    //     std::cout << a << ", ";
+    // }
+    // for (auto a : (*B.grad)) {
+    //     std::cout << a << ", ";
+    // }
     
     for (size_t i = 0; i < B.grad->size(); i++) {
         (*B.grad)[i] = (*B.grad)[i] + gradB[i];
@@ -169,7 +169,7 @@ std::function<double(double, double)> opB) {
 
 
 void MatMulBackward::backward(std::shared_ptr<std::vector<double>> grad_output, std::vector<size_t> shape, std::vector<size_t> stride) { // grad_output is the gradient inputted into the function
-    std::cout << "MUL HAS BEEN CALLED" << std::endl;
+    // std::cout << "MUL HAS BEEN CALLED" << std::endl;
 
     Tensor grad_tensor = Tensor(*grad_output, shape, stride);
 

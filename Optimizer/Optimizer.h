@@ -16,9 +16,10 @@ public:
 
 class Optim::SGD : public Optim {
 public:
-    std::vector<std::reference_wrapper<Tensor>> save_tensors_;
+    std::vector<Tensor*> param_ptrs_;  // Store pointers instead
     double learning_rate;
-    SGD(double learning_rate, std::vector<std::reference_wrapper<Tensor>> save_tensors_);
+    
+    SGD(double learning_rate, std::vector<Tensor*> param_ptrs);
     void apply_grads() override;
     void zero_grads() override;
 };
